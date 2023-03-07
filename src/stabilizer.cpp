@@ -214,17 +214,17 @@ void Stabilizer::CalcDcmDynamics(const Timer& timer, const Param& param, const F
 	Vector3 pcom = body.calcCenterOfMass();
 	Vector3 vcom = calcComVel(body);
 	Vector3 dcm_tmp = pcom + T*vcom;
-	Vector3 dcm_gain = Vector3(2.0, 2.0, 1.0);
+	Vector3 dcm_gain = Vector3(2.0, 2.0, 0.8);
 	centroid.zmp_ref = stb0.zmp + dcm_gain.cwiseProduct(dcm_tmp - stb0.dcm) + rate*T*delta;
 
 	// project zmp inside support region
-	/*if(stb0.stepping){
+	if(stb0.stepping){
 		Vector3 zmp_local = stb0.foot_ori[sup].conjugate()*(centroid.zmp_ref - stb0.foot_pos[sup]);
 		for(int j = 0; j < 3; j++){
 			zmp_local[j] = std::min(std::max(param.zmp_min[j], zmp_local[j]), param.zmp_max[j]);
 		}
 		centroid.zmp_ref = stb0.foot_pos[sup] + stb0.foot_ori[sup]*zmp_local;
-	}*/
+	}
 
 	// calc DCM derivative
 	Vector3 dcm_d = (1 / T) * (dcm_tmp - (centroid.zmp_ref + Vector3(0.0, 0.0, h))); //+ delta;
@@ -261,6 +261,9 @@ void Stabilizer::Update(const Timer& timer, const Param& param, const Footstep& 
 	CalcDcmDynamics(timer, param, footstep_buffer, base, theta, omega, centroid, body);
 
 	// calc desired force applied to CoM
+	Vector3 pcom = body.calcCenterOfMass();
+	Vector3 vcom = calcComVel(body);
+	//centroid.zmp_ref += 0.34*(centroid.com_vel_ref - vcom) + 2.67 * (centroid.com_pos_ref - pcom);
 	centroid.force_ref  = param.total_mass*(centroid.com_acc_ref + Vector3(0.0, 0.0, param.gravity));
 	centroid.moment_ref = Vector3(0.0, 0.0, 0.0);
 

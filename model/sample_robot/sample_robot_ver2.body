@@ -14,7 +14,7 @@ links:
   -
     name: HIPS
     jointType: free
-    translation: [0, 0, 0.9]
+    translation: [0, 0, 0.90]
     mass: 10.0
     centerOfMass: [0, 0, 0]
     inertia: [0.04, 0, 0,  0, 0.04, 0,  0, 0, 0.04]

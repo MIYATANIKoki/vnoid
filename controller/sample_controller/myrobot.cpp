@@ -12,8 +12,8 @@ MyRobot::MyRobot(){
 void MyRobot::Init(SimpleControllerIO* io){
     // init params
     //  dynamical parameters
-	param.total_mass = 50.0;
-	param.com_height =  0.70;
+	param.total_mass = 43.0;
+	param.com_height =  0.85;
 	param.gravity    =  9.8;
     
     // kinematic parameters
@@ -183,7 +183,7 @@ void MyRobot::Control(){
 			footstep.steps.pop_back();
 
 		Step step;
-		step.stride   = 0.1; //-max_stride*joystick.getPosition(Joystick::L_STICK_V_AXIS);
+		step.stride   = 0.0; //-max_stride*joystick.getPosition(Joystick::L_STICK_V_AXIS);
 		step.turn     = 0.0; //-max_turn  *joystick.getPosition(Joystick::L_STICK_H_AXIS);
 		step.spacing  = 0.20;
 		step.climb    = 0.0;
