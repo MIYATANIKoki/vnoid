@@ -125,7 +125,7 @@ void Stabilizer::CalcForceDistribution(const Param& param, Centroid& centroid, v
 	}
 }
 
-void Stabilizer::Predict(const Timer& timer, const Param& param, const Footstep& footstep_buffer, const Base& base, Centroid& centroid){
+void Stabilizer::Predict(const Timer& timer, const Param& param, const Footstep& footstep_buffer, const Base& base, Centroid& centroid, Body& body){
 	const Step& stb0 = footstep_buffer.steps[0];
     
 	double ttl = (stb0.tbegin + stb0.duration - timer.time);
@@ -139,11 +139,26 @@ void Stabilizer::Predict(const Timer& timer, const Param& param, const Footstep&
 		theta += omega*timer.dt;
 		omega += -(orientation_ctrl_gain_p*theta + orientation_ctrl_gain_d*omega)*timer.dt;
 		
-		CalcDcmDynamics(timer, param, footstep_buffer, base, theta, omega, centroid);
+		CalcDcmDynamics(timer, param, footstep_buffer, base, theta, omega, centroid, body);
 	}
 }
 
-void Stabilizer::CalcDcmDynamics(const Timer& timer, const Param& param, const Footstep& footstep_buffer, const Base& base, Vector3 theta, Vector3 omega, Centroid& centroid){
+Vector3 calcComVel(Body& body) {
+	double m = 0.0;
+	Vector3 mc = Vector3::Zero();
+	int n = body.numLinks();
+
+	for (int i = 0; i < n; i++) {
+		Link* link = body.link(i);
+		link->wc().noalias() = link->R() * link->c() + link->v();
+		mc.noalias() += link->m() * link->wc();
+		m += link->m();
+	}
+
+	return mc / m;
+}
+
+void Stabilizer::CalcDcmDynamics(const Timer& timer, const Param& param, const Footstep& footstep_buffer, const Base& base, Vector3 theta, Vector3 omega, Centroid& centroid, Body& body){
 	const Step& stb0 = footstep_buffer.steps[0];
     const Step& stb1 = footstep_buffer.steps[1];
     int sup =  stb0.side;
@@ -156,7 +171,7 @@ void Stabilizer::CalcDcmDynamics(const Timer& timer, const Param& param, const F
 	double T2_mh = T*T_mh;
 
 	Vector3 offset(0.0, 0.0, param.com_height);
-
+	
 	// calc moment for regulating orientation
 	Vector3 Ld = base.ori_ref * Vector3(
 		-param.nominal_inertia.x()*(orientation_ctrl_gain_p*theta.x() + orientation_ctrl_gain_d*omega.x()),
@@ -194,23 +209,28 @@ void Stabilizer::CalcDcmDynamics(const Timer& timer, const Param& param, const F
 	Vector3 delta = Vector3(-T_mh*Ld.y(), T_mh*Ld.x(), 0.0);
 
 	// calc zmp for regulating dcm
-	const double rate = 1.0;
-	centroid.zmp_ref = stb0.zmp + dcm_ctrl_gain*(centroid.dcm_ref - stb0.dcm) + rate*T*delta;
+	const double rate = 0.0;
+	body.calcForwardKinematics();
+	Vector3 pcom = body.calcCenterOfMass();
+	Vector3 vcom = calcComVel(body);
+	Vector3 dcm_tmp = pcom + T*vcom;
+	Vector3 dcm_gain = Vector3(2.0, 2.0, 1.0);
+	centroid.zmp_ref = stb0.zmp + dcm_gain.cwiseProduct(dcm_tmp - stb0.dcm) + rate*T*delta;
 
 	// project zmp inside support region
-	if(stb0.stepping){
+	/*if(stb0.stepping){
 		Vector3 zmp_local = stb0.foot_ori[sup].conjugate()*(centroid.zmp_ref - stb0.foot_pos[sup]);
 		for(int j = 0; j < 3; j++){
 			zmp_local[j] = std::min(std::max(param.zmp_min[j], zmp_local[j]), param.zmp_max[j]);
 		}
 		centroid.zmp_ref = stb0.foot_pos[sup] + stb0.foot_ori[sup]*zmp_local;
-	}
+	}*/
 
 	// calc DCM derivative
-	Vector3 dcm_d = (1/T)*(centroid.dcm_ref - (centroid.zmp_ref + Vector3(0.0, 0.0, h))) + delta;
+	Vector3 dcm_d = (1 / T) * (dcm_tmp - (centroid.zmp_ref + Vector3(0.0, 0.0, h))); //+ delta;
 
 	// calc CoM acceleration
-	centroid.com_acc_ref = (1/T)*(dcm_d - centroid.com_vel_ref);
+	centroid.com_acc_ref = (1/T)*(dcm_d - vcom);
 
 	// update DCM
 	centroid.dcm_ref += dcm_d*timer.dt;
@@ -220,13 +240,13 @@ void Stabilizer::CalcDcmDynamics(const Timer& timer, const Param& param, const F
 	}
 
 	// calc CoM velocity from dcm
-	centroid.com_vel_ref = (1/T)*(centroid.dcm_ref - centroid.com_pos_ref);
+	centroid.com_vel_ref = (1/T)*(centroid.dcm_ref - pcom);
 
 	// update CoM position
 	centroid.com_pos_ref += centroid.com_vel_ref*timer.dt;
 }
 
-void Stabilizer::Update(const Timer& timer, const Param& param, const Footstep& footstep_buffer, Centroid& centroid, Base& base, vector<Foot>& foot){
+void Stabilizer::Update(const Timer& timer, const Param& param, const Footstep& footstep_buffer, Centroid& centroid, Base& base, vector<Foot>& foot, Body& body){
 	const Step& stb0 = footstep_buffer.steps[0];
     const Step& stb1 = footstep_buffer.steps[1];
     int sup =  stb0.side;
@@ -238,7 +258,7 @@ void Stabilizer::Update(const Timer& timer, const Param& param, const Footstep& 
 	Vector3 theta = base.angle  - base.angle_ref;
 	Vector3 omega = base.angvel - base.angvel_ref;
 	
-	CalcDcmDynamics(timer, param, footstep_buffer, base, theta, omega, centroid);
+	CalcDcmDynamics(timer, param, footstep_buffer, base, theta, omega, centroid, body);
 
 	// calc desired force applied to CoM
 	centroid.force_ref  = param.total_mass*(centroid.com_acc_ref + Vector3(0.0, 0.0, param.gravity));

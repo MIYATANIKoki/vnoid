@@ -204,7 +204,7 @@ void MyRobot::Control(){
     stepping_controller.Update(timer, param, footstep, footstep_buffer, centroid, base, foot);
     
     // stabilizer performs balance feedback
-    stabilizer         .Update(timer, param, footstep_buffer, centroid, base, foot);
+    stabilizer         .Update(timer, param, footstep_buffer, centroid, base, foot, *io_body);
     
     // step timing adaptation
     //Centroid centroid_pred = centroid;

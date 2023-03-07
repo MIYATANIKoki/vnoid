@@ -856,6 +856,14 @@ links:
             type: Shape
             translation: [0.0, 0.0, -0.025]
             geometry: {type: Box, size: [0.20, 0.10, 0.05]}
+
+standardPose: [
+  0,   0,   0,  0,   0, -15,
+  0,   0,   0,  0,   0,   0,
+  15,   0,   0,  0,   0,   0,
+  0,   0, -20, 35, -15,   0,  
+  0,   0, -20, 35, -15,   0
+]
   
 collisionDetection:
   excludeTreeDepth: 30
