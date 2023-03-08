@@ -114,9 +114,9 @@ items:
               0, 1, 0, 
               0, 0, 1 ]
             initialJointPositions: [ 
-              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-              0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+              0, 0, 0, 0, 0, -21, 0, 0, 0, 0, 
+              21, 0, 21, 0, 0, 0, 0, 0, 0, 0, 
+              -31.8, 53, -21.2, 0, 0, 0, -31.8, 53, -21.2, 0 ]
             staticModel: false
             collisionDetection: true
             selfCollisionDetection: false

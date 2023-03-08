@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include <cnoid/EigenTypes>
-#include <cnoid/Body>
 
 #include <vector>
 using namespace std;
@@ -96,7 +95,7 @@ public:
 	 * 
 	 *  This is an internal function called from Update and Predict.
 	 **/
-	void CalcDcmDynamics(const Timer& timer, const Param& param, const Footstep& footstep_buffer, const Base& base, Vector3 theta, Vector3 omega, Centroid& centroid, Body& body);
+	void CalcDcmDynamics(const Timer& timer, const Param& param, const Footstep& footstep_buffer, const Base& base, Vector3 theta, Vector3 omega, Centroid& centroid);
 
 	/** @brief calculates ZMP from ground reaction force acting on the feet
 	 *
@@ -142,10 +141,10 @@ public:
 	 *
 	 *  
 	 **/
-    void Update(const Timer& timer, const Param& param, const Footstep& footstep_buffer, Centroid& centroid, Base& base, vector<Foot>& foot, Body& body);
+    void Update(const Timer& timer, const Param& param, const Footstep& footstep_buffer, Centroid& centroid, Base& base, vector<Foot>& foot);
     
 	// do prediction
-	void Predict(const Timer& timer, const Param& param, const Footstep& footstep_buffer, const Base& base, Centroid& centroid, Body& body);
+	void Predict(const Timer& timer, const Param& param, const Footstep& footstep_buffer, const Base& base, Centroid& centroid);
 	
 	Stabilizer();
 };

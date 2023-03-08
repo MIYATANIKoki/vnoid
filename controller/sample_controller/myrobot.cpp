@@ -114,6 +114,7 @@ void MyRobot::Init(SimpleControllerIO* io){
 
     // set initial state
     centroid.com_pos_ref = Vector3(0.0, 0.0, param.com_height);
+    centroid.com_pos     = Vector3(0.0, 0.0, param.com_height);
     centroid.dcm_ref     = Vector3(0.0, 0.0, param.com_height);
     foot[0].pos_ref = Vector3(0.0, -0.2/2.0, 0.0);
     foot[1].pos_ref = Vector3(0.0,  0.2/2.0, 0.0);
@@ -137,10 +138,25 @@ void MyRobot::Init(SimpleControllerIO* io){
     stepping_controller.dsp_duration = 0.05;
     
     // init stabilizer
-    stabilizer.orientation_ctrl_gain_p = 100.0;
-    stabilizer.orientation_ctrl_gain_d = 10.0;
+    stabilizer.orientation_ctrl_gain_p = 400.0;
+    stabilizer.orientation_ctrl_gain_d = 50.0;
     stabilizer.dcm_ctrl_gain = 2.0;
 
+}
+
+Vector3 calcComVel(Body& body) {
+    double m = 0.0;
+    Vector3 mc = Vector3::Zero();
+    int n = body.numLinks();
+
+    for (int i = 0; i < n; i++) {
+        Link* link = body.link(i);
+        link->wc().noalias() = link->R() * link->c() + link->v();
+        mc.noalias() += link->m() * link->wc();
+        m += link->m();
+    }
+
+    return mc / m;
 }
 
 void MyRobot::Control(){
@@ -204,7 +220,10 @@ void MyRobot::Control(){
     stepping_controller.Update(timer, param, footstep, footstep_buffer, centroid, base, foot);
     
     // stabilizer performs balance feedback
-    stabilizer         .Update(timer, param, footstep_buffer, centroid, base, foot, *io_body);
+    io_body->calcForwardKinematics();
+    centroid.com_pos = io_body->calcCenterOfMass();
+    centroid.com_vel = calcComVel(*io_body);
+    stabilizer         .Update(timer, param, footstep_buffer, centroid, base, foot);
     
     // step timing adaptation
     //Centroid centroid_pred = centroid;

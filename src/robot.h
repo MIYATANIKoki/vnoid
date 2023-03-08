@@ -122,9 +122,12 @@ public:
 	Vector3  dcm_ref;      ///< reference DCM (divergent component of motion)
 
 	Vector3  com_pos;
+	Vector3  com_vel;
 	Vector3  com_pos_ref;  ///< reference position of CoM
 	Vector3  com_vel_ref;  ///< reference velocity of CoM
 	Vector3  com_acc_ref;  ///< reference acceleration of CoM
+	
+	Vector3  dcm_error_int;
 	
 	Centroid();
 };

@@ -1,4 +1,4 @@
 add_subdirectory(sample_controller)
 add_subdirectory(shorttrack_controller)
 
-# add_subdirectory(demos)
+add_subdirectory(demos)
