@@ -114,14 +114,14 @@ void MyRobot::Init(SimpleControllerIO* io){
 
     // set initial state
     centroid.com_pos_ref = Vector3(0.0, 0.0, param.com_height);
-    centroid.com_pos     = Vector3(0.0, 0.0, param.com_height);
+    centroid.com_pos     = Vector3(0.0, 0.0, 0.90);
     centroid.dcm_ref     = Vector3(0.0, 0.0, param.com_height);
     foot[0].pos_ref = Vector3(0.0, -0.2/2.0, 0.0);
     foot[1].pos_ref = Vector3(0.0,  0.2/2.0, 0.0);
 
     // init footsteps
-    footstep.steps.push_back(Step(0.0, 0.0, 0.2, 0.0, 0.0, 0.5, 0));
-    footstep.steps.push_back(Step(0.0, 0.0, 0.2, 0.0, 0.0, 0.5, 1));
+    footstep.steps.push_back(Step(0.0, 0.0, 0.2, 0.0, 0.0, 3.0, 0));
+    footstep.steps.push_back(Step(0.0, 0.0, 0.2, 0.0, 0.0, 3.0, 1));
     // foot placement and DCM of the initial step must be specified
     footstep.steps[0].foot_pos[0] = foot[0].pos_ref;
     footstep.steps[0].foot_pos[1] = foot[1].pos_ref;
@@ -139,7 +139,7 @@ void MyRobot::Init(SimpleControllerIO* io){
     
     // init stabilizer
     stabilizer.orientation_ctrl_gain_p = 400.0;
-    stabilizer.orientation_ctrl_gain_d = 50.0;
+    stabilizer.orientation_ctrl_gain_d = 100.0;
     stabilizer.dcm_ctrl_gain = 2.0;
 
 }
@@ -151,8 +151,8 @@ Vector3 calcComVel(Body& body) {
 
     for (int i = 0; i < n; i++) {
         Link* link = body.link(i);
-        link->wc().noalias() = link->R() * link->c() + link->v();
-        mc.noalias() += link->m() * link->wc();
+        //link->wc().noalias() = link->R() * link->c() + link->v();
+        mc.noalias() += link->m() * link->v();
         m += link->m();
     }
 
@@ -199,7 +199,7 @@ void MyRobot::Control(){
 			footstep.steps.pop_back();
 
 		Step step;
-		step.stride   = 0.0; //-max_stride*joystick.getPosition(Joystick::L_STICK_V_AXIS);
+		step.stride   = 0.1; //-max_stride*joystick.getPosition(Joystick::L_STICK_V_AXIS);
 		step.turn     = 0.0; //-max_turn  *joystick.getPosition(Joystick::L_STICK_H_AXIS);
 		step.spacing  = 0.20;
 		step.climb    = 0.0;
