@@ -138,9 +138,11 @@ void MyRobot::Init(SimpleControllerIO* io){
     stepping_controller.dsp_duration = 0.05;
     
     // init stabilizer
-    stabilizer.orientation_ctrl_gain_p = 400.0;
-    stabilizer.orientation_ctrl_gain_d = 100.0;
-    stabilizer.dcm_ctrl_gain = 2.0;
+    stabilizer.orientation_ctrl_gain_p = 10.0;
+    stabilizer.orientation_ctrl_gain_d = 10.0;
+    stabilizer.dcm_ctrl_gain_p = 2.0;
+    stabilizer.dcm_ctrl_gain_i = 5.0;
+    stabilizer.zmp_ctrl_gain   = 0.2;
 
 }
 
@@ -151,8 +153,7 @@ Vector3 calcComVel(Body& body) {
 
     for (int i = 0; i < n; i++) {
         Link* link = body.link(i);
-        //link->wc().noalias() = link->R() * link->c() + link->v();
-        mc.noalias() += link->m() * link->v();
+        mc.noalias() += link->m() * (link->v() + link->w().cross(link->R() * link->c()));
         m += link->m();
     }
 
@@ -199,7 +200,7 @@ void MyRobot::Control(){
 			footstep.steps.pop_back();
 
 		Step step;
-		step.stride   = 0.1; //-max_stride*joystick.getPosition(Joystick::L_STICK_V_AXIS);
+		step.stride   = -0.3*joystick.getPosition(Joystick::L_STICK_V_AXIS);
 		step.turn     = 0.0; //-max_turn  *joystick.getPosition(Joystick::L_STICK_H_AXIS);
 		step.spacing  = 0.20;
 		step.climb    = 0.0;
@@ -230,13 +231,13 @@ void MyRobot::Control(){
     //stabilizer.Predict(timer, param, footstep_buffer, base, centroid_pred);
     //stepping_controller.AdjustTiming(timer, param, centroid_pred, footstep, footstep_buffer);
 
-    hand[0].pos_ref = centroid.com_pos_ref + base.ori_ref*Vector3(0.0, -0.25, -0.1);
+    hand[0].pos_ref = centroid.com_pos_ref + base.ori_ref*Vector3(0.0, -0.25, -0.2);
     hand[0].ori_ref = base.ori_ref;
-    hand[1].pos_ref = centroid.com_pos_ref + base.ori_ref*Vector3(0.0,  0.25, -0.1);
+    hand[1].pos_ref = centroid.com_pos_ref + base.ori_ref*Vector3(0.0,  0.25, -0.2);
     hand[1].ori_ref = base.ori_ref;
 
     // calc CoM IK
-    ik_solver.Comp(&fk_solver, param, centroid, base, hand, foot, joint);
+    ik_solver.Comp(&fk_solver, param, centroid, base, hand, foot, joint, ik_body);
 
 	Robot::Actuate(timer, base, joint);
 	

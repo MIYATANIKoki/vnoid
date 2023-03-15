@@ -234,6 +234,7 @@ public:
 	// internal objects
 
 	Body*     io_body;   ///< handle to IO Body of Choreonoid
+	Body*     ik_body;   ///< Body clone to calculate kinematics
 
 	AccelerationSensor* accel_sensor;          ///< handle to acceleration sensor of Choreonoid
 	RateGyroSensor*     gyro_sensor;           ///< handle to rate gyro sensor of Choreonoid

@@ -158,11 +158,11 @@ void IkSolver::Comp(const Param& param, const Base& base, const vector<Hand>& ha
     }
 }
 
-void IkSolver::Comp(FkSolver* fk_solver, const Param& param, Centroid& centroid, Base& base, vector<Hand>& hand, vector<Foot>& foot, vector<Joint>& joint){
+void IkSolver::Comp(FkSolver* fk_solver, const Param& param, Centroid& centroid, Base& base, vector<Hand>& hand, vector<Foot>& foot, vector<Joint>& joint, Body* body){
     // objects to store temprary FK results
     joint_tmp.resize(joint.size());
     hand_tmp.resize(hand.size());
-    foot_tmp.resize(foot.size());
+    foot_tmp.resize(foot.size());   
 
     // initialize base position with desired CoM position
     base.pos_ref = centroid.com_pos_ref;
@@ -176,15 +176,22 @@ void IkSolver::Comp(FkSolver* fk_solver, const Param& param, Centroid& centroid,
         Comp(param, base, hand, foot, joint);
 
         // copy q_ref to q
-        for(int i = 0; i < joint.size(); i++)
+        for (int i = 0; i < joint.size(); i++) {
             joint_tmp[i].q = joint[i].q_ref;
+            body->joint(i)->q() = joint[i].q_ref;
+        }
 
         // copy base link pose
         base_tmp.pos = base.pos_ref;
         base_tmp.ori = base.ori_ref;
 
         // comp fk
-        fk_solver->Comp(param, joint_tmp, base_tmp, centroid_tmp, hand_tmp, foot_tmp);
+        Link* lnk = body->link(0);
+        lnk->p() = base_tmp.pos;
+        lnk->R() = base_tmp.ori.matrix();
+        body->calcForwardKinematics();
+        centroid_tmp.com_pos = body->calcCenterOfMass();
+        //fk_solver->Comp(param, joint_tmp, base_tmp, centroid_tmp, hand_tmp, foot_tmp);
 
         // calc difference of desired and calculated CoM position
         Vector3 diff = centroid.com_pos_ref - centroid_tmp.com_pos;

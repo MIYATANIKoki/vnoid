@@ -19,7 +19,9 @@ Stabilizer::Stabilizer(){
 	// default gain setting
 	orientation_ctrl_gain_p = 10.0;
 	orientation_ctrl_gain_d = 10.0;
-	dcm_ctrl_gain           = 10.0;
+	dcm_ctrl_gain_p           = 10.0;
+	dcm_ctrl_gain_i           = 10.0;
+	zmp_ctrl_gain             = 10.0;
 
 	//
 	recovery_moment_limit = 100.0;
@@ -123,7 +125,7 @@ void Stabilizer::CalcForceDistribution(const Param& param, Centroid& centroid, v
 		foot[i].moment_ref[1] = -foot[i].force_ref.z() * foot[i].zmp_ref.x();
 		foot[i].moment_ref[2] =  foot[i].balance_ref * centroid.moment_ref.z();
 
-		//foot[i].moment_ref += foot[i].balance_ref * (foot[i].ori_ref.conjugate() * centroid.moment_ref);
+		foot[i].moment_ref += foot[i].balance_ref * (foot[i].ori_ref.conjugate() * centroid.moment_ref);
 	}
 }
 
@@ -198,11 +200,11 @@ void Stabilizer::CalcDcmDynamics(const Timer& timer, const Param& param, const F
 	Vector3 delta = Vector3(-T_mh*Ld.y(), T_mh*Ld.x(), 0.0);
 
 	// calc zmp for regulating dcm
-	const double rate = 0.05;
 	Vector3 dcm_tmp = centroid.com_pos + T * centroid.com_vel;
+	double Ti = 20.0; // leaky integrator time constant
+	centroid.dcm_error_int *= exp(-timer.dt / Ti);
 	centroid.dcm_error_int += (stb0.dcm - dcm_tmp)*timer.dt;
-	Vector3 dcm_gain = Vector3(2.0, 2.0, 1.5);
-	centroid.zmp_ref = stb0.zmp + dcm_gain.cwiseProduct(dcm_tmp - stb0.dcm) - 0.2 * centroid.dcm_error_int;// -0.2 * (stb0.zmp - centroid.zmp); //+ rate*T*delta;
+	centroid.zmp_ref = stb0.zmp - dcm_ctrl_gain_p*(stb0.dcm - dcm_tmp) - dcm_ctrl_gain_i/Ti * centroid.dcm_error_int + zmp_ctrl_gain * (stb0.zmp - centroid.zmp);
 
 	// project zmp inside support region
 	if(stb0.stepping){
@@ -214,7 +216,7 @@ void Stabilizer::CalcDcmDynamics(const Timer& timer, const Param& param, const F
 	}
 
 	// calc DCM derivative
-	Vector3 dcm_d = (1 / T) * (dcm_tmp - (centroid.zmp_ref + Vector3(0.0, 0.0, h))) +rate * delta;
+	Vector3 dcm_d = (1 / T) * (dcm_tmp - (centroid.zmp_ref + Vector3(0.0, 0.0, h)));
 
 	// calc CoM acceleration
 	centroid.com_acc_ref = (1 / T) * (dcm_d - centroid.com_vel);// -Vector3(20.0, 10.0, 0.0).cwiseProduct(centroid.zmp_ref - centroid.zmp);

@@ -191,6 +191,7 @@ Robot::Robot(){
 
 void Robot::Init(SimpleControllerIO* io, Timer& timer, vector<Joint>& joint){
 	io_body = io->body();
+	ik_body = io_body->clone();
 	
 	if(base_actuation){
         io_body->link(0)->setActuationMode(cnoid::Link::LinkPosition);
@@ -201,10 +202,14 @@ void Robot::Init(SimpleControllerIO* io, Timer& timer, vector<Joint>& joint){
     joint_pos_filter.resize(joint.size());
 	for (int i = 0; i < joint.size(); ++i) {
 		cnoid::Link* jnt = io_body->joint(i);
+		cnoid::Link* ik_jnt = ik_body->joint(i);
 		
         jnt->setActuationMode(cnoid::Link::JointTorque);
 		io->enableIO(jnt);
 		io->enableInput(jnt, cnoid::Link::JointVelocity);
+		io->enableInput(jnt, cnoid::Link::LinkTwist);
+		ik_jnt->setActuationMode(cnoid::Link::LinkPosition);
+		io->enableIO(ik_jnt);
 		
 		joint[i].q_ref  = joint[i].q  = jnt->q ();
 		joint[i].dq_ref = joint[i].dq = jnt->dq();

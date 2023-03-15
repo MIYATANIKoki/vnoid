@@ -40,7 +40,9 @@ public:
 
 	double  orientation_ctrl_gain_p;
 	double  orientation_ctrl_gain_d;
-	double  dcm_ctrl_gain;
+	double  dcm_ctrl_gain_p;
+	double  dcm_ctrl_gain_i;
+	double  zmp_ctrl_gain;
 	double  recovery_moment_limit;
 	double  dcm_deviation_limit;
 

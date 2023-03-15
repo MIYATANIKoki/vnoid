@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <cnoid/EigenTypes>
+#include <cnoid/Body>
 
 #include <vector>
 using namespace std;
@@ -88,7 +89,7 @@ public:
      *  CoM position computed by FK matches the reference value.
      *
      **/
-    void Comp(FkSolver* fk_solver, const Param& param, Centroid& centroid, Base& base, vector<Hand>& hand, vector<Foot>& foot, vector<Joint>& joint);
+    void Comp(FkSolver* fk_solver, const Param& param, Centroid& centroid, Base& base, vector<Hand>& hand, vector<Foot>& foot, vector<Joint>& joint, Body* body);
 
 protected:
     // variables for internal use
