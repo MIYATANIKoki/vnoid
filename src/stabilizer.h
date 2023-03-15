@@ -43,6 +43,8 @@ public:
 	double  dcm_ctrl_gain_p;
 	double  dcm_ctrl_gain_i;
 	double  zmp_ctrl_gain;
+	double  force_gain_p;
+	double  force_gain_i;
 	double  recovery_moment_limit;
 	double  dcm_deviation_limit;
 

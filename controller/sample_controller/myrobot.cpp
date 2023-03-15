@@ -138,11 +138,13 @@ void MyRobot::Init(SimpleControllerIO* io){
     stepping_controller.dsp_duration = 0.05;
     
     // init stabilizer
-    stabilizer.orientation_ctrl_gain_p = 10.0;
-    stabilizer.orientation_ctrl_gain_d = 10.0;
+    stabilizer.orientation_ctrl_gain_p = 25.0;
+    stabilizer.orientation_ctrl_gain_d = 5.0;
     stabilizer.dcm_ctrl_gain_p = 2.0;
     stabilizer.dcm_ctrl_gain_i = 5.0;
     stabilizer.zmp_ctrl_gain   = 0.2;
+    stabilizer.force_gain_p    = 1.5;
+    stabilizer.force_gain_i    = 50;
 
 }
 
@@ -231,9 +233,9 @@ void MyRobot::Control(){
     //stabilizer.Predict(timer, param, footstep_buffer, base, centroid_pred);
     //stepping_controller.AdjustTiming(timer, param, centroid_pred, footstep, footstep_buffer);
 
-    hand[0].pos_ref = centroid.com_pos_ref + base.ori_ref*Vector3(0.0, -0.25, -0.2);
+    hand[0].pos_ref = centroid.com_pos_ref + base.ori_ref*Vector3(0.0, -0.25, -0.18);
     hand[0].ori_ref = base.ori_ref;
-    hand[1].pos_ref = centroid.com_pos_ref + base.ori_ref*Vector3(0.0,  0.25, -0.2);
+    hand[1].pos_ref = centroid.com_pos_ref + base.ori_ref*Vector3(0.0,  0.25, -0.18);
     hand[1].ori_ref = base.ori_ref;
 
     // calc CoM IK

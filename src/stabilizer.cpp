@@ -22,6 +22,7 @@ Stabilizer::Stabilizer(){
 	dcm_ctrl_gain_p           = 10.0;
 	dcm_ctrl_gain_i           = 10.0;
 	zmp_ctrl_gain             = 10.0;
+	force_gain_p              = 10.0;
 
 	//
 	recovery_moment_limit = 100.0;
@@ -232,7 +233,7 @@ void Stabilizer::CalcDcmDynamics(const Timer& timer, const Param& param, const F
 	centroid.com_vel_ref = (1/T)*(centroid.dcm_ref - centroid.com_pos);
 
 	// update CoM position
-	centroid.com_pos_ref += centroid.com_vel_ref*timer.dt;
+	centroid.com_pos_ref += centroid.com_vel_ref*timer.dt + 0.5*centroid.com_acc_ref*timer.dt*timer.dt;
 }
 
 void Stabilizer::Update(const Timer& timer, const Param& param, const Footstep& footstep_buffer, Centroid& centroid, Base& base, vector<Foot>& foot){
@@ -253,7 +254,9 @@ void Stabilizer::Update(const Timer& timer, const Param& param, const Footstep& 
 	/*Vector3 pcom = body.calcCenterOfMass();
 	Vector3 vcom = calcComVel(body);*/
 	//centroid.zmp_ref += 0.34*(centroid.com_vel_ref - vcom) + 2.67 * (centroid.com_pos_ref - pcom);
-	centroid.force_ref  = param.total_mass*(centroid.com_acc_ref + Vector3(0.0, 0.0, param.gravity));
+	Vector3 grf  = param.total_mass*(centroid.com_acc_ref + Vector3(0.0, 0.0, param.gravity));
+	Vector3 grf_tmp = foot[0].force + foot[1].force;
+	centroid.force_ref = grf + force_gain_p * (grf - grf_tmp) + force_gain_i*(centroid.com_vel_ref - centroid.com_vel);
 	centroid.moment_ref = Vector3(0.0, 0.0, 0.0);
 	
 
@@ -290,6 +293,11 @@ void Stabilizer::Update(const Timer& timer, const Param& param, const Footstep& 
 		}
 	}
 
+
+	/*Vector3 base_acc = -orientation_ctrl_gain_p * theta - orientation_ctrl_gain_d * omega;
+	base.angvel_ref = base_acc * timer.dt;
+	base.angle_ref[0] = base.angvel_ref[0] * timer.dt + 0.5*base_acc[0]*timer.dt*timer.dt;
+	base.angle_ref[1] = base.angvel_ref[1] * timer.dt + 0.5*base_acc[1]*timer.dt*timer.dt;*/
 }
 }
 }
