@@ -64,6 +64,7 @@ void Stabilizer::CalcZmp(const Param& param, Centroid& centroid, vector<Foot>& f
 		centroid.zmp =
 			     (foot[0].balance) * (foot[0].pos_ref + foot[0].ori_ref * foot[0].zmp)
 	           + (foot[1].balance) * (foot[1].pos_ref + foot[1].ori_ref * foot[1].zmp);
+		centroid.zmp[2] = centroid.com_pos[2] - param.com_height;
 	}
 }
 
@@ -220,7 +221,7 @@ void Stabilizer::CalcDcmDynamics(const Timer& timer, const Param& param, const F
 	Vector3 dcm_d = (1 / T) * (dcm_tmp - (centroid.zmp_ref + Vector3(0.0, 0.0, h)));
 
 	// calc CoM acceleration
-	centroid.com_acc_ref = (1 / T) * (dcm_d - centroid.com_vel);// -Vector3(20.0, 10.0, 0.0).cwiseProduct(centroid.zmp_ref - centroid.zmp);
+	centroid.com_acc_ref = (1 / T) * (dcm_d - centroid.com_vel); //-Vector3(8.0, 4.0, 0.0).cwiseProduct(centroid.zmp_ref - centroid.zmp);
 
 	// update DCM
 	centroid.dcm_ref += dcm_d*timer.dt;
@@ -251,14 +252,11 @@ void Stabilizer::Update(const Timer& timer, const Param& param, const Footstep& 
 	CalcDcmDynamics(timer, param, footstep_buffer, base, theta, omega, centroid);
 
 	// calc desired force applied to CoM
-	/*Vector3 pcom = body.calcCenterOfMass();
-	Vector3 vcom = calcComVel(body);*/
-	//centroid.zmp_ref += 0.34*(centroid.com_vel_ref - vcom) + 2.67 * (centroid.com_pos_ref - pcom);
 	Vector3 grf  = param.total_mass*(centroid.com_acc_ref + Vector3(0.0, 0.0, param.gravity));
 	Vector3 grf_tmp = foot[0].force + foot[1].force;
 	centroid.force_ref = grf + force_gain_p * (grf - grf_tmp) + force_gain_i*(centroid.com_vel_ref - centroid.com_vel);
-	centroid.moment_ref = Vector3(0.0, 0.0, 0.0);
-	
+	//Vector3 moment_tmp = (centroid.zmp - centroid.zmp_ref).cross(centroid.force_ref);
+	centroid.moment_ref = Vector3(0.0, 0.0, 0.0);// -0.1 * moment_tmp - 0.5 * centroid.momentum;
 
 	{
 		Vector3 m(0.0, 0.0, 0.0);

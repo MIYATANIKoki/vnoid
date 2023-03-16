@@ -96,16 +96,16 @@ void MyRobot::Init(SimpleControllerIO* io){
     joint[15].Set(1000.0, 200.0, 100.0);
     joint[16].Set(1000.0, 200.0, 100.0);
     joint[17].Set(1000.0, 200.0, 100.0);
-    joint[18].Set(1000.0, 200.0, 100.0);
-    joint[19].Set(1000.0, 200.0, 100.0);
-    joint[20].Set(1000.0, 200.0, 100.0);
-    joint[21].Set(1000.0, 200.0, 100.0);
+    joint[18].Set(2000.0, 300.0, 100.0);
+    joint[19].Set(2000.0, 300.0, 100.0);
+    joint[20].Set(2000.0, 300.0, 100.0);
+    joint[21].Set(4000.0, 500.0, 100.0);
     joint[22].Set(100.0, 20.0, 100.0);
     joint[23].Set(100.0, 20.0, 100.0);
-    joint[24].Set(1000.0, 200.0, 100.0);
-    joint[25].Set(1000.0, 200.0, 100.0);
-    joint[26].Set(1000.0, 200.0, 100.0);
-    joint[27].Set(1000.0, 200.0, 100.0);
+    joint[24].Set(2000.0, 300.0, 100.0);
+    joint[25].Set(2000.0, 300.0, 100.0);
+    joint[26].Set(2000.0, 300.0, 100.0);
+    joint[27].Set(4000.0, 500.0, 100.0);
     joint[28].Set(100.0, 20.0, 100.0);
     joint[29].Set(100.0, 20.0, 100.0);
     
@@ -138,28 +138,14 @@ void MyRobot::Init(SimpleControllerIO* io){
     stepping_controller.dsp_duration = 0.05;
     
     // init stabilizer
-    stabilizer.orientation_ctrl_gain_p = 25.0;
+    stabilizer.orientation_ctrl_gain_p = 40;
     stabilizer.orientation_ctrl_gain_d = 5.0;
     stabilizer.dcm_ctrl_gain_p = 2.0;
     stabilizer.dcm_ctrl_gain_i = 5.0;
-    stabilizer.zmp_ctrl_gain   = 0.2;
-    stabilizer.force_gain_p    = 1.5;
-    stabilizer.force_gain_i    = 50;
+    stabilizer.zmp_ctrl_gain   = 0.1;
+    stabilizer.force_gain_p    = 2;
+    stabilizer.force_gain_i    = 200;
 
-}
-
-Vector3 calcComVel(Body& body) {
-    double m = 0.0;
-    Vector3 mc = Vector3::Zero();
-    int n = body.numLinks();
-
-    for (int i = 0; i < n; i++) {
-        Link* link = body.link(i);
-        mc.noalias() += link->m() * (link->v() + link->w().cross(link->R() * link->c()));
-        m += link->m();
-    }
-
-    return mc / m;
 }
 
 void MyRobot::Control(){
@@ -203,7 +189,7 @@ void MyRobot::Control(){
 
 		Step step;
 		step.stride   = -0.3*joystick.getPosition(Joystick::L_STICK_V_AXIS);
-		step.turn     = 0.0; //-max_turn  *joystick.getPosition(Joystick::L_STICK_H_AXIS);
+		step.turn     = -0.1  *joystick.getPosition(Joystick::L_STICK_H_AXIS);
 		step.spacing  = 0.20;
 		step.climb    = 0.0;
 		step.duration = 0.5;
@@ -225,7 +211,8 @@ void MyRobot::Control(){
     // stabilizer performs balance feedback
     io_body->calcForwardKinematics();
     centroid.com_pos = io_body->calcCenterOfMass();
-    centroid.com_vel = calcComVel(*io_body);
+    io_body->calcTotalMomentum(centroid.com_vel, centroid.momentum);
+    centroid.com_vel /= io_body->mass();
     stabilizer         .Update(timer, param, footstep_buffer, centroid, base, foot);
     
     // step timing adaptation

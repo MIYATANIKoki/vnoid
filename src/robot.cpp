@@ -47,6 +47,7 @@ Centroid::Centroid(){
 	com_vel_ref = Vector3(0.0, 0.0, 0.0);
 	com_acc_ref = Vector3(0.0, 0.0, 0.0);
 
+	momentum      = Vector3(0.0, 0.0, 0.0);
 	dcm_error_int = Vector3(0.0, 0.0, 0.0);
 }
 

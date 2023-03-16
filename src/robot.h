@@ -127,6 +127,7 @@ public:
 	Vector3  com_vel_ref;  ///< reference velocity of CoM
 	Vector3  com_acc_ref;  ///< reference acceleration of CoM
 	
+	Vector3  momentum;
 	Vector3  dcm_error_int;
 	
 	Centroid();
