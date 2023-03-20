@@ -28,7 +28,8 @@ links:
       -
         type: Visual
         resource:
-          uri: "Hips.stl"
+          # uri: "Hips.stl"
+          uri: "Hip.dae"
       -
         type: Collision
         elements:
@@ -62,7 +63,7 @@ links:
       -
         type: Visual
         resource:
-          uri: "ChestY.stl"
+          # uri: "ChestY.stl"
       -
         type: Collision
         elements:
@@ -88,7 +89,8 @@ links:
       -
         type: Visual
         resource:
-          uri: "ChestP.stl"
+          # uri: "ChestP.stl"
+          uri: "Chest.dae"
       -
         type: Collision
         elements:
@@ -114,7 +116,7 @@ links:
       -
         type: Visual
         resource:
-          uri: "HeadY.stl"
+          # uri: "HeadY.stl"
       -
         type: Collision
         elements:
@@ -140,7 +142,8 @@ links:
       -
         type: Visual
         resource:
-          uri: "HeadP.stl"
+          # uri: "HeadP.stl"
+          uri: "Head.dae"
       -
         type: Collision
         elements:
@@ -166,7 +169,7 @@ links:
       -
         type: Visual
         resource:
-          uri: "UpperarmP.stl"
+          # uri: "UpperarmP.stl"
       -
         type: Collision
         elements:
@@ -192,7 +195,8 @@ links:
       -
         type: Visual
         resource:
-          uri: "UpperarmR.stl"
+          # uri: "UpperarmR.stl"
+          # uri: "Sholder_R.dae"
       -
         type: Collision
         elements:
@@ -218,7 +222,8 @@ links:
       -
         type: Visual
         resource:
-          uri: "UpperarmY.stl"
+          # uri: "UpperarmY.stl"
+          uri: "UpperArm_R.dae"
       -
         type: Collision
         elements:
@@ -247,7 +252,7 @@ links:
       -
         type: Visual
         resource:
-          uri: "LowerarmP.stl"
+          # uri: "LowerarmP.stl"
       -
         type: Collision
         elements:
@@ -273,7 +278,8 @@ links:
       -
         type: Visual
         resource:
-          uri: "LowerarmY.stl"
+          # uri: "LowerarmY.stl"
+          uri: "ForeArm_R.dae"
       -
         type: Collision
         elements:
@@ -301,7 +307,7 @@ links:
       -
         type: Visual
         resource:
-          uri: "HandP.stl"
+          # uri: "HandP.stl"
       -
         type: Collision
         elements:
@@ -327,7 +333,8 @@ links:
       -
         type: Visual
         resource:
-          uri: "HandR.stl"
+          # uri: "HandR.stl"
+          uri: "Hand_R.dae"
       -
         type: Collision
         elements:
@@ -354,7 +361,7 @@ links:
       -
         type: Visual
         resource:
-          uri: "UpperarmP.stl"
+          # uri: "UpperarmP.stl"
       -
         type: Collision
         elements:
@@ -380,7 +387,8 @@ links:
       -
         type: Visual
         resource:
-          uri: "UpperarmR.stl"
+          # uri: "UpperarmR.stl"
+          # uri: "Sholder_L.dae"
       -
         type: Collision
         elements:
@@ -406,7 +414,8 @@ links:
       -
         type: Visual
         resource:
-          uri: "UpperarmY.stl"
+          # uri: "UpperarmY.stl"
+          uri: "UpperArm_L.dae"
       -
         type: Collision
         elements:
@@ -434,7 +443,7 @@ links:
       -
         type: Visual
         resource:
-          uri: "LowerarmP.stl"
+          # uri: "LowerarmP.stl"
       -
         type: Collision
         elements:
@@ -460,7 +469,8 @@ links:
       -
         type: Visual
         resource:
-          uri: "LowerarmY.stl"
+          # uri: "LowerarmY.stl"
+          uri: "ForeArm_L.dae"
       -
         type: Collision
         elements:
@@ -488,7 +498,7 @@ links:
       -
         type: Visual
         resource:
-          uri: "HandP.stl"
+          # uri: "HandP.stl"
       -
         type: Collision
         elements:
@@ -514,7 +524,8 @@ links:
       -
         type: Visual
         resource:
-          uri: "HandR.stl"
+          # uri: "HandR.stl"
+          uri: "Hand.dae"
       -
         type: Collision
         elements:
@@ -594,6 +605,7 @@ links:
         type: Visual
         resource:
           uri: "UpperlegP.stl"
+          # uri: "UpperLeg_R.dae"
       -
         type: Collision
         elements:
@@ -622,6 +634,7 @@ links:
         type: Visual
         resource:
           uri: "LowerlegP.stl"
+          # uri: "LowerLeg_R.dae"
       -
         type: Collision
         elements:
@@ -649,7 +662,7 @@ links:
       -
         type: Visual
         resource:
-          uri: "FootP.stl"
+          # uri: "FootP.stl"
       -
         type: Collision
         elements:
@@ -681,7 +694,8 @@ links:
       -
         type: Visual
         resource:
-          uri: "FootR_flat.stl"
+          # uri: "FootR_flat.stl"
+          uri: "Foot_R.dae"
       -
         type: Collision
         elements:
@@ -848,7 +862,8 @@ links:
       -
         type: Visual
         resource:
-          uri: "FootR_flat.stl"
+          # uri: "FootR_flat.stl"
+          uri: "Foot_L.dae"
       -
         type: Collision
         elements:

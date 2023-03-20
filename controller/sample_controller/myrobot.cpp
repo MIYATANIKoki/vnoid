@@ -13,6 +13,7 @@ void MyRobot::Init(SimpleControllerIO* io){
     // init params
     //  dynamical parameters
 	param.total_mass = 43.0;
+    param.nominal_inertia = Vector3(20.0, 20.0, 5.0);
 	param.com_height =  0.85;
 	param.gravity    =  9.8;
     
@@ -143,8 +144,8 @@ void MyRobot::Init(SimpleControllerIO* io){
     stabilizer.dcm_ctrl_gain_p = 2.0;
     stabilizer.dcm_ctrl_gain_i = 5.0;
     stabilizer.zmp_ctrl_gain   = 0.1;
-    stabilizer.force_gain_p    = 2;
-    stabilizer.force_gain_i    = 200;
+    stabilizer.force_gain_p    = 2.5;
+    stabilizer.force_gain_i    = 300;
 
 }
 
@@ -213,6 +214,7 @@ void MyRobot::Control(){
     centroid.com_pos = io_body->calcCenterOfMass();
     io_body->calcTotalMomentum(centroid.com_vel, centroid.momentum);
     centroid.com_vel /= io_body->mass();
+    centroid.dcm = centroid.com_pos + param.T * centroid.com_vel;
     stabilizer         .Update(timer, param, footstep_buffer, centroid, base, foot);
     
     // step timing adaptation

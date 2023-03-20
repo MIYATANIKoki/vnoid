@@ -202,11 +202,10 @@ void Stabilizer::CalcDcmDynamics(const Timer& timer, const Param& param, const F
 	Vector3 delta = Vector3(-T_mh*Ld.y(), T_mh*Ld.x(), 0.0);
 
 	// calc zmp for regulating dcm
-	Vector3 dcm_tmp = centroid.com_pos + T * centroid.com_vel;
 	double Ti = 20.0; // leaky integrator time constant
 	centroid.dcm_error_int *= exp(-timer.dt / Ti);
-	centroid.dcm_error_int += (stb0.dcm - dcm_tmp)*timer.dt;
-	centroid.zmp_ref = stb0.zmp - dcm_ctrl_gain_p*(stb0.dcm - dcm_tmp) - dcm_ctrl_gain_i/Ti * centroid.dcm_error_int + zmp_ctrl_gain * (stb0.zmp - centroid.zmp);
+	centroid.dcm_error_int += (stb0.dcm - centroid.dcm)*timer.dt;
+	centroid.zmp_ref = stb0.zmp - dcm_ctrl_gain_p * (stb0.dcm - centroid.dcm) - dcm_ctrl_gain_i / Ti * centroid.dcm_error_int + zmp_ctrl_gain * (stb0.zmp - centroid.zmp);
 
 	// project zmp inside support region
 	if(stb0.stepping){
@@ -218,7 +217,7 @@ void Stabilizer::CalcDcmDynamics(const Timer& timer, const Param& param, const F
 	}
 
 	// calc DCM derivative
-	Vector3 dcm_d = (1 / T) * (dcm_tmp - (centroid.zmp_ref + Vector3(0.0, 0.0, h)));
+	Vector3 dcm_d = (1 / T) * (centroid.dcm - (centroid.zmp_ref + Vector3(0.0, 0.0, h)));
 
 	// calc CoM acceleration
 	centroid.com_acc_ref = (1 / T) * (dcm_d - centroid.com_vel); //-Vector3(8.0, 4.0, 0.0).cwiseProduct(centroid.zmp_ref - centroid.zmp);
